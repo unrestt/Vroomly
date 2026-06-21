@@ -1,5 +1,73 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Button from "../../../components/Button";
+import { Select } from "../../../components/Select";
+
+const categoryOptions = [
+  { value: "1", label: "Osobowe" },
+  { value: "2", label: "Motocykle" },
+  { value: "3", label: "Dostawcze" },
+];
+
+const makeOptions = [
+  { value: "1", label: "Audi" },
+  { value: "2", label: "BMW" },
+  { value: "3", label: "Toyota" },
+];
+
+const getModelOptions = (make: string) => {
+  if (make === "1") {
+    return [
+      { value: "1", label: "A4" },
+      { value: "2", label: "A6" },
+    ];
+  }
+  if (make === "2") {
+    return [
+      { value: "3", label: "Seria 3" },
+      { value: "4", label: "Seria 5" },
+    ];
+  }
+  if (make === "3") {
+    return [{ value: "5", label: "Corolla" }];
+  }
+  return [];
+};
+
+const gearboxOptions = [
+  { value: "manual", label: "Manualna" },
+  { value: "automatic", label: "Automatyczna" },
+];
+
+const bodyTypeOptions = [
+  { value: "sedan", label: "Sedan" },
+  { value: "kombi", label: "Kombi" },
+  { value: "suv", label: "SUV" },
+  { value: "hatchback", label: "Hatchback" },
+];
+
+const originOptions = [
+  { value: "PL", label: "Polska" },
+  { value: "DE", label: "Niemcy" },
+  { value: "FR", label: "Francja" },
+];
+
+const colorOptions = [
+  { value: "czarny", label: "Czarny" },
+  { value: "bialy", label: "Biały" },
+  { value: "szary", label: "Szary" },
+];
+
+const steeringOptions = [
+  { value: "LHD", label: "Po lewej stronie (Standard)" },
+  { value: "RHD", label: "Po prawej stronie (Anglik)" },
+];
+
+const fuelOptions = [
+  { value: "diesel", label: "Diesel" },
+  { value: "petrol", label: "Benzyna" },
+  { value: "hybrid", label: "Hybryda" },
+  { value: "electric", label: "Elektryczny" },
+];
 
 const FiltersList = () => {
   const [showDetailed, setShowDetailed] = useState(false);
@@ -55,9 +123,6 @@ const FiltersList = () => {
   const inputStyle =
     "w-full bg-gray-50/80 rounded-2xl px-4 py-3 text-sm text-gray-700 outline-none focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all border-0 shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)]";
 
-  const selectStyle =
-    "w-full bg-gray-50/80 rounded-2xl px-4 py-3 text-sm text-gray-700 outline-none focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all border-0 cursor-pointer shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)] appearance-none";
-
   const labelStyle =
     "block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 pl-1";
 
@@ -68,59 +133,35 @@ const FiltersList = () => {
         {/* Kategoria */}
         <div>
           <label className={labelStyle}>Kategoria</label>
-          <div className="relative">
-            <select
-              value={filters.category}
-              onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-              className={selectStyle}
-            >
-              <option value="">Wszystkie kategorie</option>
-              <option value="1">Osobowe</option>
-              <option value="2">Motocykle</option>
-              <option value="3">Dostawcze</option>
-            </select>
-          </div>
+          <Select
+            value={filters.category}
+            onChange={(val) => setFilters({ ...filters, category: val })}
+            options={categoryOptions}
+            placeholder="Wszystkie kategorie"
+          />
         </div>
 
         {/* Marka */}
         <div>
           <label className={labelStyle}>Marka</label>
-          <select
+          <Select
             value={filters.make}
-            onChange={(e) => setFilters({ ...filters, make: e.target.value })}
-            className={selectStyle}
-          >
-            <option value="">Wszystkie marki</option>
-            <option value="1">Audi</option>
-            <option value="2">BMW</option>
-            <option value="3">Toyota</option>
-          </select>
+            onChange={(val) => setFilters({ ...filters, make: val, model: "" })}
+            options={makeOptions}
+            placeholder="Wszystkie marki"
+          />
         </div>
 
         {/* Model */}
         <div>
           <label className={labelStyle}>Model</label>
-          <select
+          <Select
             value={filters.model}
             disabled={!filters.make}
-            onChange={(e) => setFilters({ ...filters, model: e.target.value })}
-            className={`${selectStyle} disabled:opacity-50 disabled:cursor-not-allowed`}
-          >
-            <option value="">Wszystkie modele</option>
-            {filters.make === "1" && (
-              <>
-                <option value="1">A4</option>
-                <option value="2">A6</option>
-              </>
-            )}
-            {filters.make === "2" && (
-              <>
-                <option value="3">Seria 3</option>
-                <option value="4">Seria 5</option>
-              </>
-            )}
-            {filters.make === "3" && <option value="5">Corolla</option>}
-          </select>
+            onChange={(val) => setFilters({ ...filters, model: val })}
+            options={getModelOptions(filters.make)}
+            placeholder="Wszystkie modele"
+          />
         </div>
 
         {/* Lokalizacja */}
@@ -192,7 +233,7 @@ const FiltersList = () => {
         <button
           type="button"
           onClick={() => setShowDetailed(!showDetailed)}
-          className="flex items-center gap-2 text-xs font-bold text-blue-600 uppercase tracking-wider hover:text-blue-700 transition-colors focus:outline-none"
+          className="flex items-center gap-2 text-xs font-bold text-blue-600 uppercase tracking-wider hover:text-blue-700 transition-colors focus:outline-none cursor-pointer"
         >
           <svg
             className={`w-4 h-4 transition-transform duration-300 ${
@@ -213,170 +254,155 @@ const FiltersList = () => {
           Szczegółowe parametry pojazdu
         </button>
 
-        {showDetailed && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6 transition-all duration-500 ease-in-out">
-            {/* Przebieg od */}
-            <div>
-              <label className={labelStyle}>Przebieg od (km)</label>
-              <input
-                type="number"
-                placeholder="np. 50 000"
-                value={filters.mileageFrom}
-                onChange={(e) => setFilters({ ...filters, mileageFrom: e.target.value })}
-                className={inputStyle}
-              />
-            </div>
+        <div
+          className={`grid transition-all duration-500 ease-in-out ${
+            showDetailed
+              ? "grid-rows-[1fr] opacity-100 mt-6"
+              : "grid-rows-[0fr] opacity-0 mt-0 pointer-events-none"
+          }`}
+        >
+          <div className="overflow-hidden">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pb-2">
+              {/* Przebieg od */}
+              <div>
+                <label className={labelStyle}>Przebieg od (km)</label>
+                <input
+                  type="number"
+                  placeholder="np. 50 000"
+                  value={filters.mileageFrom}
+                  onChange={(e) => setFilters({ ...filters, mileageFrom: e.target.value })}
+                  className={inputStyle}
+                />
+              </div>
 
-            {/* Przebieg do */}
-            <div>
-              <label className={labelStyle}>Przebieg do (km)</label>
-              <input
-                type="number"
-                placeholder="np. 200 000"
-                value={filters.mileageTo}
-                onChange={(e) => setFilters({ ...filters, mileageTo: e.target.value })}
-                className={inputStyle}
-              />
-            </div>
+              {/* Przebieg do */}
+              <div>
+                <label className={labelStyle}>Przebieg do (km)</label>
+                <input
+                  type="number"
+                  placeholder="np. 200 000"
+                  value={filters.mileageTo}
+                  onChange={(e) => setFilters({ ...filters, mileageTo: e.target.value })}
+                  className={inputStyle}
+                />
+              </div>
 
-            {/* Pojemność od */}
-            <div>
-              <label className={labelStyle}>Pojemność od (cm³)</label>
-              <input
-                type="number"
-                placeholder="np. 1900"
-                value={filters.capacityFrom}
-                onChange={(e) => setFilters({ ...filters, capacityFrom: e.target.value })}
-                className={inputStyle}
-              />
-            </div>
+              {/* Pojemność od */}
+              <div>
+                <label className={labelStyle}>Pojemność od (cm³)</label>
+                <input
+                  type="number"
+                  placeholder="np. 1900"
+                  value={filters.capacityFrom}
+                  onChange={(e) => setFilters({ ...filters, capacityFrom: e.target.value })}
+                  className={inputStyle}
+                />
+              </div>
 
-            {/* Pojemność do */}
-            <div>
-              <label className={labelStyle}>Pojemność do (cm³)</label>
-              <input
-                type="number"
-                placeholder="np. 3000"
-                value={filters.capacityTo}
-                onChange={(e) => setFilters({ ...filters, capacityTo: e.target.value })}
-                className={inputStyle}
-              />
-            </div>
+              {/* Pojemność do */}
+              <div>
+                <label className={labelStyle}>Pojemność do (cm³)</label>
+                <input
+                  type="number"
+                  placeholder="np. 3000"
+                  value={filters.capacityTo}
+                  onChange={(e) => setFilters({ ...filters, capacityTo: e.target.value })}
+                  className={inputStyle}
+                />
+              </div>
 
-            {/* Moc od */}
-            <div>
-              <label className={labelStyle}>Moc silnika od (KM)</label>
-              <input
-                type="number"
-                placeholder="np. 150"
-                value={filters.powerFrom}
-                onChange={(e) => setFilters({ ...filters, powerFrom: e.target.value })}
-                className={inputStyle}
-              />
-            </div>
+              {/* Moc od */}
+              <div>
+                <label className={labelStyle}>Moc silnika od (KM)</label>
+                <input
+                  type="number"
+                  placeholder="np. 150"
+                  value={filters.powerFrom}
+                  onChange={(e) => setFilters({ ...filters, powerFrom: e.target.value })}
+                  className={inputStyle}
+                />
+              </div>
 
-            {/* Moc do */}
-            <div>
-              <label className={labelStyle}>Moc silnika do (KM)</label>
-              <input
-                type="number"
-                placeholder="np. 300"
-                value={filters.powerTo}
-                onChange={(e) => setFilters({ ...filters, powerTo: e.target.value })}
-                className={inputStyle}
-              />
-            </div>
+              {/* Moc do */}
+              <div>
+                <label className={labelStyle}>Moc silnika do (KM)</label>
+                <input
+                  type="number"
+                  placeholder="np. 300"
+                  value={filters.powerTo}
+                  onChange={(e) => setFilters({ ...filters, powerTo: e.target.value })}
+                  className={inputStyle}
+                />
+              </div>
 
-            {/* Skrzynia biegów */}
-            <div>
-              <label className={labelStyle}>Skrzynia biegów</label>
-              <select
-                value={filters.gearbox}
-                onChange={(e) => setFilters({ ...filters, gearbox: e.target.value })}
-                className={selectStyle}
-              >
-                <option value="">Dowolna</option>
-                <option value="manual">Manualna</option>
-                <option value="automatic">Automatyczna</option>
-              </select>
-            </div>
+              {/* Skrzynia biegów */}
+              <div>
+                <label className={labelStyle}>Skrzynia biegów</label>
+                <Select
+                  value={filters.gearbox}
+                  onChange={(val) => setFilters({ ...filters, gearbox: val })}
+                  options={gearboxOptions}
+                  placeholder="Dowolna"
+                />
+              </div>
 
-            {/* Typ nadwozia */}
-            <div>
-              <label className={labelStyle}>Typ nadwozia</label>
-              <select
-                value={filters.bodyType}
-                onChange={(e) => setFilters({ ...filters, bodyType: e.target.value })}
-                className={selectStyle}
-              >
-                <option value="">Dowolne</option>
-                <option value="sedan">Sedan</option>
-                <option value="kombi">Kombi</option>
-                <option value="suv">SUV</option>
-                <option value="hatchback">Hatchback</option>
-              </select>
-            </div>
+              {/* Typ nadwozia */}
+              <div>
+                <label className={labelStyle}>Typ nadwozia</label>
+                <Select
+                  value={filters.bodyType}
+                  onChange={(val) => setFilters({ ...filters, bodyType: val })}
+                  options={bodyTypeOptions}
+                  placeholder="Dowolne"
+                />
+              </div>
 
-            {/* Kraj pochodzenia */}
-            <div>
-              <label className={labelStyle}>Kraj pochodzenia</label>
-              <select
-                value={filters.origin}
-                onChange={(e) => setFilters({ ...filters, origin: e.target.value })}
-                className={selectStyle}
-              >
-                <option value="">Dowolny</option>
-                <option value="PL">Polska</option>
-                <option value="DE">Niemcy</option>
-                <option value="FR">Francja</option>
-              </select>
-            </div>
+              {/* Kraj pochodzenia */}
+              <div>
+                <label className={labelStyle}>Kraj pochodzenia</label>
+                <Select
+                  value={filters.origin}
+                  onChange={(val) => setFilters({ ...filters, origin: val })}
+                  options={originOptions}
+                  placeholder="Dowolny"
+                />
+              </div>
 
-            {/* Kolor */}
-            <div>
-              <label className={labelStyle}>Kolor</label>
-              <select
-                value={filters.color}
-                onChange={(e) => setFilters({ ...filters, color: e.target.value })}
-                className={selectStyle}
-              >
-                <option value="">Dowolny</option>
-                <option value="czarny">Czarny</option>
-                <option value="bialy">Biały</option>
-                <option value="szary">Szary</option>
-              </select>
-            </div>
+              {/* Kolor */}
+              <div>
+                <label className={labelStyle}>Kolor</label>
+                <Select
+                  value={filters.color}
+                  onChange={(val) => setFilters({ ...filters, color: val })}
+                  options={colorOptions}
+                  placeholder="Dowolny"
+                />
+              </div>
 
-            {/* Kierownica */}
-            <div>
-              <label className={labelStyle}>Kierownica</label>
-              <select
-                value={filters.steering}
-                onChange={(e) => setFilters({ ...filters, steering: e.target.value })}
-                className={selectStyle}
-              >
-                <option value="LHD">Po lewej stronie (Standard)</option>
-                <option value="RHD">Po prawej stronie (Anglik)</option>
-              </select>
-            </div>
+              {/* Kierownica */}
+              <div>
+                <label className={labelStyle}>Kierownica</label>
+                <Select
+                  value={filters.steering}
+                  onChange={(val) => setFilters({ ...filters, steering: val })}
+                  options={steeringOptions}
+                  placeholder="Dowolna"
+                />
+              </div>
 
-            {/* Rodzaj paliwa */}
-            <div>
-              <label className={labelStyle}>Rodzaj paliwa</label>
-              <select
-                value={filters.fuel}
-                onChange={(e) => setFilters({ ...filters, fuel: e.target.value })}
-                className={selectStyle}
-              >
-                <option value="">Dowolne</option>
-                <option value="diesel">Diesel</option>
-                <option value="petrol">Benzyna</option>
-                <option value="hybrid">Hybryda</option>
-                <option value="electric">Elektryczny</option>
-              </select>
+              {/* Rodzaj paliwa */}
+              <div>
+                <label className={labelStyle}>Rodzaj paliwa</label>
+                <Select
+                  value={filters.fuel}
+                  onChange={(val) => setFilters({ ...filters, fuel: val })}
+                  options={fuelOptions}
+                  placeholder="Dowolne"
+                />
+              </div>
             </div>
           </div>
-        )}
+        </div>
       </div>
 
       {/* Stopka filtrów - Wyczyszczenie i Przycisk szukaj */}
