@@ -41,4 +41,4 @@ const ListingList = () => {
   );
 };
 
-export default ListingList;
+export default ListingList;

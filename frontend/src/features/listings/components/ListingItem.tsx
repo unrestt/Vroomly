@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import type { Listing } from "../types/listingTypes";
 
 type Props = {
@@ -14,7 +15,10 @@ const ListingItem = ({ listing }: Props) => {
     : "";
 
   return (
-    <div className="bg-white rounded-3xl shadow-[0_10px_35px_rgba(0,0,0,0.03)] overflow-hidden flex flex-col transition-all duration-300 hover:shadow-[0_20px_50px_rgba(0,0,0,0.08)] hover:-translate-y-1">
+    <Link 
+      to={`/listings/${listing.id}`}
+      className="bg-white rounded-3xl shadow-[0_10px_35px_rgba(0,0,0,0.03)] overflow-hidden flex flex-col transition-all duration-300 hover:shadow-[0_20px_50px_rgba(0,0,0,0.08)] hover:-translate-y-1 block cursor-pointer text-current no-underline"
+    >
       {/* Sekcja Zdjęcia */}
       <div className="relative w-full aspect-[4/3] bg-gray-50 flex items-center justify-center overflow-hidden">
         {listing.countryOfOrigin && (
@@ -84,16 +88,16 @@ const ListingItem = ({ listing }: Props) => {
             {engineVolume} {listing.fuelType} • {listing.enginePower} KM
           </div>
           <div className="truncate pr-1">
-            {listing.gearbox.split(" ")[0]} • {listing.bodyType}
+            {listing.gearbox?.split(" ")[0]} • {listing.bodyType}
           </div>
           <div className="truncate">
-            {listing.color} • {listing.location.split(",")[0]}
+            {listing.color} • {listing.location?.split(",")[0]}
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 
 
-export default ListingItem;
+export default ListingItem;
