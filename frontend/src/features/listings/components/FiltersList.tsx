@@ -1,18 +1,73 @@
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+
 const FiltersList = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Local state for holding values before submitting
+  const [localFilters, setLocalFilters] = useState<Record<string, string>>(() => {
+    return Object.fromEntries(searchParams.entries());
+  });
+
+  // Sync local filters with URL if URL changes externally (e.g. forward/back buttons or clear)
+  useEffect(() => {
+    setLocalFilters(Object.fromEntries(searchParams.entries()));
+  }, [searchParams]);
+
   const inputStyle =
     "w-full bg-gray-50/80 rounded-2xl px-4 py-3 text-sm text-gray-700 outline-none focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all border-0 shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)] cursor-pointer";
 
   const labelStyle =
     "block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 pl-1";
 
+  // Updates local state only
+  const handleLocalChange = (key: string, value: string) => {
+    setLocalFilters((prev) => {
+      const updated = { ...prev };
+      if (value) {
+        updated[key] = value;
+      } else {
+        delete updated[key];
+      }
+      return updated;
+    });
+  };
+
+  // Applies all local filters to URL search params upon clicking submit
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const newParams = new URLSearchParams();
+    Object.entries(localFilters).forEach(([key, value]) => {
+      if (value) {
+        newParams.set(key, value);
+      }
+    });
+    setSearchParams(newParams);
+  };
+
+  // Clears both URL and local state
+  const handleClearFilters = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    setLocalFilters({});
+    setSearchParams({});
+  };
+
   return (
-    <form className="bg-white rounded-[32px] shadow-[0_15px_50px_rgba(0,0,0,0.03)] p-8 max-w-7xl mx-auto my-6">
+    <form 
+      onSubmit={handleSubmit} 
+      className="bg-white rounded-[32px] shadow-[0_15px_50px_rgba(0,0,0,0.03)] p-8 max-w-7xl mx-auto my-6"
+    >
       {/* Podstawowe Filtry - Grid 4-kolumnowy */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
         {/* Kategoria */}
         <div>
           <label className={labelStyle}>Kategoria</label>
-          <select className={inputStyle} defaultValue="1">
+          <select 
+            className={inputStyle} 
+            value={localFilters.category_id || ""} 
+            onChange={(e) => handleLocalChange("category_id", e.target.value)}
+          >
+            <option value="">Wszystkie kategorie</option>
             <option value="1">Osobowe</option>
             <option value="2">Motocykle</option>
             <option value="3">Dostawcze</option>
@@ -22,18 +77,30 @@ const FiltersList = () => {
         {/* Marka */}
         <div>
           <label className={labelStyle}>Marka</label>
-          <select className={inputStyle} defaultValue="">
+          <select 
+            className={inputStyle} 
+            value={localFilters.make_id || ""}
+            onChange={(e) => handleLocalChange("make_id", e.target.value)}
+          >
             <option value="">Wszystkie marki</option>
             <option value="1">Audi</option>
             <option value="2">BMW</option>
             <option value="3">Toyota</option>
+            <option value="4">Yamaha</option>
+            <option value="5">Honda</option>
+            <option value="6">Mercedes-Benz</option>
+            <option value="7">Fiat</option>
           </select>
         </div>
 
         {/* Model */}
         <div>
           <label className={labelStyle}>Model</label>
-          <select className={inputStyle} defaultValue="">
+          <select 
+            className={inputStyle} 
+            value={localFilters.model_id || ""}
+            onChange={(e) => handleLocalChange("model_id", e.target.value)}
+          >
             <option value="">Wszystkie modele</option>
             <option value="1">A4</option>
             <option value="2">A6</option>
@@ -50,6 +117,8 @@ const FiltersList = () => {
             type="text"
             placeholder="np. Warszawa, Mazowieckie"
             className={inputStyle}
+            value={localFilters.location || ""}
+            onChange={(e) => handleLocalChange("location", e.target.value)}
           />
         </div>
       </div>
@@ -58,19 +127,43 @@ const FiltersList = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
         <div>
           <label className={labelStyle}>Cena od</label>
-          <input type="number" placeholder="od zł" className={inputStyle} />
+          <input 
+            type="number" 
+            placeholder="od zł" 
+            className={inputStyle} 
+            value={localFilters.price_from || ""}
+            onChange={(e) => handleLocalChange("price_from", e.target.value)}
+          />
         </div>
         <div>
           <label className={labelStyle}>Cena do</label>
-          <input type="number" placeholder="do zł" className={inputStyle} />
+          <input 
+            type="number" 
+            placeholder="do zł" 
+            className={inputStyle} 
+            value={localFilters.price_to || ""}
+            onChange={(e) => handleLocalChange("price_to", e.target.value)}
+          />
         </div>
         <div>
           <label className={labelStyle}>Rok produkcji od</label>
-          <input type="number" placeholder="np. 2015" className={inputStyle} />
+          <input 
+            type="number" 
+            placeholder="np. 2015" 
+            className={inputStyle} 
+            value={localFilters.year_from || ""}
+            onChange={(e) => handleLocalChange("year_from", e.target.value)}
+          />
         </div>
         <div>
           <label className={labelStyle}>Rok produkcji do</label>
-          <input type="number" placeholder="np. 2026" className={inputStyle} />
+          <input 
+            type="number" 
+            placeholder="np. 2026" 
+            className={inputStyle} 
+            value={localFilters.year_to || ""}
+            onChange={(e) => handleLocalChange("year_to", e.target.value)}
+          />
         </div>
       </div>
 
@@ -98,43 +191,83 @@ const FiltersList = () => {
           {/* Przebieg od */}
           <div>
             <label className={labelStyle}>Przebieg od (km)</label>
-            <input type="number" placeholder="np. 50 000" className={inputStyle} />
+            <input 
+              type="number" 
+              placeholder="np. 50 000" 
+              className={inputStyle} 
+              value={localFilters.mileage_from || ""}
+              onChange={(e) => handleLocalChange("mileage_from", e.target.value)}
+            />
           </div>
 
           {/* Przebieg do */}
           <div>
             <label className={labelStyle}>Przebieg do (km)</label>
-            <input type="number" placeholder="np. 200 000" className={inputStyle} />
+            <input 
+              type="number" 
+              placeholder="np. 200 000" 
+              className={inputStyle} 
+              value={localFilters.mileage_to || ""}
+              onChange={(e) => handleLocalChange("mileage_to", e.target.value)}
+            />
           </div>
 
           {/* Pojemność od */}
           <div>
             <label className={labelStyle}>Pojemność od (cm³)</label>
-            <input type="number" placeholder="np. 1900" className={inputStyle} />
+            <input 
+              type="number" 
+              placeholder="np. 1900" 
+              className={inputStyle} 
+              value={localFilters.engine_capacity_from || ""}
+              onChange={(e) => handleLocalChange("engine_capacity_from", e.target.value)}
+            />
           </div>
 
           {/* Pojemność do */}
           <div>
             <label className={labelStyle}>Pojemność do (cm³)</label>
-            <input type="number" placeholder="np. 3000" className={inputStyle} />
+            <input 
+              type="number" 
+              placeholder="np. 3000" 
+              className={inputStyle} 
+              value={localFilters.engine_capacity_to || ""}
+              onChange={(e) => handleLocalChange("engine_capacity_to", e.target.value)}
+            />
           </div>
 
           {/* Moc od */}
           <div>
             <label className={labelStyle}>Moc silnika od (KM)</label>
-            <input type="number" placeholder="np. 150" className={inputStyle} />
+            <input 
+              type="number" 
+              placeholder="np. 150" 
+              className={inputStyle} 
+              value={localFilters.engine_power_from || ""}
+              onChange={(e) => handleLocalChange("engine_power_from", e.target.value)}
+            />
           </div>
 
           {/* Moc do */}
           <div>
             <label className={labelStyle}>Moc silnika do (KM)</label>
-            <input type="number" placeholder="np. 300" className={inputStyle} />
+            <input 
+              type="number" 
+              placeholder="np. 300" 
+              className={inputStyle} 
+              value={localFilters.engine_power_to || ""}
+              onChange={(e) => handleLocalChange("engine_power_to", e.target.value)}
+            />
           </div>
 
           {/* Skrzynia biegów */}
           <div>
             <label className={labelStyle}>Skrzynia biegów</label>
-            <select className={inputStyle} defaultValue="">
+            <select 
+              className={inputStyle} 
+              value={localFilters.gearbox || ""}
+              onChange={(e) => handleLocalChange("gearbox", e.target.value)}
+            >
               <option value="">Dowolna</option>
               <option value="manual">Manualna</option>
               <option value="automatic">Automatyczna</option>
@@ -144,7 +277,11 @@ const FiltersList = () => {
           {/* Typ nadwozia */}
           <div>
             <label className={labelStyle}>Typ nadwozia</label>
-            <select className={inputStyle} defaultValue="">
+            <select 
+              className={inputStyle} 
+              value={localFilters.body_type || ""}
+              onChange={(e) => handleLocalChange("body_type", e.target.value)}
+            >
               <option value="">Dowolne</option>
               <option value="sedan">Sedan</option>
               <option value="kombi">Kombi</option>
@@ -156,7 +293,11 @@ const FiltersList = () => {
           {/* Kraj pochodzenia */}
           <div>
             <label className={labelStyle}>Kraj pochodzenia</label>
-            <select className={inputStyle} defaultValue="">
+            <select 
+              className={inputStyle} 
+              value={localFilters.country_of_origin || ""}
+              onChange={(e) => handleLocalChange("country_of_origin", e.target.value)}
+            >
               <option value="">Dowolny</option>
               <option value="PL">Polska</option>
               <option value="DE">Niemcy</option>
@@ -167,7 +308,11 @@ const FiltersList = () => {
           {/* Kolor */}
           <div>
             <label className={labelStyle}>Kolor</label>
-            <select className={inputStyle} defaultValue="">
+            <select 
+              className={inputStyle} 
+              value={localFilters.color || ""}
+              onChange={(e) => handleLocalChange("color", e.target.value)}
+            >
               <option value="">Dowolny</option>
               <option value="czarny">Czarny</option>
               <option value="bialy">Biały</option>
@@ -178,7 +323,12 @@ const FiltersList = () => {
           {/* Kierownica */}
           <div>
             <label className={labelStyle}>Kierownica</label>
-            <select className={inputStyle} defaultValue="LHD">
+            <select 
+              className={inputStyle} 
+              value={localFilters.steering_wheel_side || ""}
+              onChange={(e) => handleLocalChange("steering_wheel_side", e.target.value)}
+            >
+              <option value="">Dowolna</option>
               <option value="LHD">Po lewej stronie (Standard)</option>
               <option value="RHD">Po prawej stronie (Anglik)</option>
             </select>
@@ -187,7 +337,11 @@ const FiltersList = () => {
           {/* Rodzaj paliwa */}
           <div>
             <label className={labelStyle}>Rodzaj paliwa</label>
-            <select className={inputStyle} defaultValue="">
+            <select 
+              className={inputStyle} 
+              value={localFilters.fuel_type || ""}
+              onChange={(e) => handleLocalChange("fuel_type", e.target.value)}
+            >
               <option value="">Dowolne</option>
               <option value="diesel">Diesel</option>
               <option value="petrol">Benzyna</option>
@@ -201,7 +355,8 @@ const FiltersList = () => {
       {/* Stopka filtrów */}
       <div className="flex justify-between items-center mt-6 border-t border-gray-50 pt-6">
         <button
-          type="reset"
+          type="button"
+          onClick={handleClearFilters}
           className="text-gray-500 hover:text-gray-700 text-sm font-semibold transition-colors cursor-pointer"
         >
           Wyczyść wszystkie filtry

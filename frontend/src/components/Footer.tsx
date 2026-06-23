@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import Logo from "./Logo";
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -11,13 +12,8 @@ export const Footer = () => {
           
           {/* Kolumna 1: Logo i opis */}
           <div className="space-y-4">
-            <Link to="/" className="flex items-center gap-2 group">
-              <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-base shadow-md shadow-blue-500/20">
-                V
-              </div>
-              <span className="text-lg font-black text-white tracking-tight">
-                Vroom<span className="text-blue-600">ly</span>
-              </span>
+            <Link to="/" className="flex items-center group">
+              <Logo variant="dark" className="h-8" />
             </Link>
             <p className="text-sm leading-relaxed text-gray-400 max-w-xs">
               Nowoczesna platforma motoryzacyjna ułatwiająca zakup i sprzedaż pojazdów w całej Polsce.

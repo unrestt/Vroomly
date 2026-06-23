@@ -1,8 +1,8 @@
 import { supabase } from "../../../lib/supabaseClient";
 import type { Listing } from "../types/listingTypes";
 
-export const getListings = async (): Promise<Listing[]> => {
-  const { data, error } = await supabase
+export const getListings = async (filters?: Record<string, string>): Promise<Listing[]> => {
+  let query = supabase
     .from('listings')
     .select(`
       *,
@@ -10,6 +10,71 @@ export const getListings = async (): Promise<Listing[]> => {
       model:models(*),
       images(*)
     `);
+
+  if (filters) {
+    if (filters.category_id) {
+      query = query.eq('category_id', Number(filters.category_id));
+    }
+    if (filters.make_id) {
+      query = query.eq('make_id', Number(filters.make_id));
+    }
+    if (filters.model_id) {
+      query = query.eq('model_id', Number(filters.model_id));
+    }
+    if (filters.location) {
+      query = query.ilike('location', `%${filters.location}%`);
+    }
+    if (filters.price_from) {
+      query = query.gte('price', Number(filters.price_from));
+    }
+    if (filters.price_to) {
+      query = query.lte('price', Number(filters.price_to));
+    }
+    if (filters.year_from) {
+      query = query.gte('production_year', Number(filters.year_from));
+    }
+    if (filters.year_to) {
+      query = query.lte('production_year', Number(filters.year_to));
+    }
+    if (filters.mileage_from) {
+      query = query.gte('mileage', Number(filters.mileage_from));
+    }
+    if (filters.mileage_to) {
+      query = query.lte('mileage', Number(filters.mileage_to));
+    }
+    if (filters.engine_capacity_from) {
+      query = query.gte('engine_capacity', Number(filters.engine_capacity_from));
+    }
+    if (filters.engine_capacity_to) {
+      query = query.lte('engine_capacity', Number(filters.engine_capacity_to));
+    }
+    if (filters.engine_power_from) {
+      query = query.gte('engine_power', Number(filters.engine_power_from));
+    }
+    if (filters.engine_power_to) {
+      query = query.lte('engine_power', Number(filters.engine_power_to));
+    }
+    if (filters.gearbox) {
+      query = query.eq('gearbox', filters.gearbox);
+    }
+    if (filters.body_type) {
+      query = query.eq('body_type', filters.body_type);
+    }
+    if (filters.country_of_origin) {
+      query = query.eq('country_of_origin', filters.country_of_origin);
+    }
+    if (filters.color) {
+      query = query.eq('color', filters.color);
+    }
+    if (filters.steering_wheel_side) {
+      query = query.eq('steering_wheel_side', filters.steering_wheel_side);
+    }
+    if (filters.fuel_type) {
+      query = query.eq('fuel_type', filters.fuel_type);
+    }
+  }
+
+  const { data, error } = await query;
 
   if (error) throw new Error(error.message);
 

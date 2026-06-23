@@ -1,9 +1,12 @@
+import { useSearchParams } from "react-router-dom";
 import { useListings } from "../hooks/useListings";
 import ListingItem from "./ListingItem";
 import Loader from "../../../components/Loader";
 
 const ListingList = () => {
-  const { data: listings, isLoading, isError } = useListings();
+  const [searchParams] = useSearchParams();
+  const filters = Object.fromEntries(searchParams.entries());
+  const { data: listings, isLoading, isError } = useListings(filters);
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
